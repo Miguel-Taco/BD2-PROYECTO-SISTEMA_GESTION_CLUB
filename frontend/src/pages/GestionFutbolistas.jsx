@@ -60,13 +60,23 @@ export default function GestionFutbolistas() {
       const nuevoFutbolista = {
         id_futbolista: Date.now(),
         ...formData,
+        id_pais: parseInt(formData.id_pais),
+        id_posicion: parseInt(formData.id_posicion),
+        id_club: parseInt(formData.id_club),
         valor_mercado: parseFloat(formData.valor_mercado),
       };
       setFutbolistas([...futbolistas, nuevoFutbolista]);
     } else if (modalMode === 'EDIT') {
       setFutbolistas(futbolistas.map(f => 
         f.id_futbolista === currentFutbolista.id_futbolista 
-        ? { ...f, ...formData, valor_mercado: parseFloat(formData.valor_mercado) } 
+        ? { 
+          ...f, 
+          ...formData, 
+          id_pais: parseInt(formData.id_pais),
+          id_posicion: parseInt(formData.id_posicion),
+          id_club: parseInt(formData.id_club),
+          valor_mercado: parseFloat(formData.valor_mercado)
+         } 
         : f
       ));
     }

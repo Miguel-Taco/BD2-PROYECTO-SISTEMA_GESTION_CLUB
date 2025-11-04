@@ -59,12 +59,19 @@ export default function GestionTecnicos() {
       const nuevoTecnico = {
         id_tecnico: Date.now(),
         ...formData,
+        id_pais: parseInt(formData.id_pais), 
+        id_club: parseInt(formData.id_club),    
       };
       setTecnicos([...tecnicos, nuevoTecnico]);
     } else if (modalMode === 'EDIT') {
       setTecnicos(tecnicos.map(t => 
         t.id_tecnico === currentTecnico.id_tecnico 
-        ? { ...t, ...formData } 
+        ? { 
+          ...t, 
+          ...formData,
+          id_pais: parseInt(formData.id_pais),  
+          id_club: parseInt(formData.id_club),          
+        } 
         : t
       ));
     }
