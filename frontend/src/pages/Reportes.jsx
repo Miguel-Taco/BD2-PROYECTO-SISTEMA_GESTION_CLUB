@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { FileText, Loader2 } from 'lucide-react';
 
+const BASE_URL = 'http://localhost:3001';
+
 // Lista de los 10 reportes
 const listaReportes = [
   { id: 1, nombre: 'Reporte de Plantel Completo' },
@@ -8,9 +10,9 @@ const listaReportes = [
   { id: 3, nombre: 'Reporte de Futbolistas por Posición' },
   { id: 4, nombre: 'Reporte de Próximas Vencimientos de Contrato' },
   { id: 5, nombre: 'Reporte de Promedio de Edad del Plantel' },
-  { id: 6, nombre: 'Reporte de Conteo de Jugadores por Posición' },
-  { id: 7, nombre: 'Reporte de Masa Salarial Total' },
-  { id: 8, nombre: 'Reporte de Valor de Plantilla' },
+  { id: 6, nombre: 'Reporte de Riesgo de Fuga', ruta: '/api/reportes/6/riesgo-fuga' },
+  { id: 7, nombre: 'Reporte de Proyección Planilla', ruta: '/api/reportes/7/proyeccion-planilla' },
+  { id: 8, nombre: 'Reporte de Control de Extranjeros', ruta: '/api/reportes/8/control-extranjeros' },
   { id: 9, nombre: 'Reporte de Balance Cantera vs. Fichajes' },
   { id: 10, nombre: 'Reporte de ROI de Fichajes' },
 ];
@@ -26,17 +28,46 @@ export default function Reportes() {
   const [datosReporte, setDatosReporte] = useState([]);
   const [cargando, setCargando] = useState(false);
 
-  const handleEjecutarReporte = (reporte) => {
-    console.log('Ejecutando reporte:', reporte.nombre);
+  const handleEjecutarReporte = async (reporte) => {
+    if (!reporte.ruta) return; // Evitar llamadas si la ruta no existe
+
     setCargando(true);
     setReporteActivo(reporte);
     setDatosReporte([]);
 
-    // Simulación de llamada a API
-    setTimeout(() => {
-      setDatosReporte(mockReporteData);
+    try {
+      const response = await fetch(`${BASE_URL}${reporte.ruta}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // 💡 Lógica crucial: Extraer los datos del campo 'data' o 'detalle'
+      let dataFinal = [];
+      
+      if (data.data) {
+          // Aplica para Reportes 6, 8, 9, 10
+          dataFinal = data.data;
+      } else if (data.detalle) {
+          // Aplica para Reporte 7 (Planilla), que devuelve un objeto con sub-arrays (jugadores, tecnicos)
+          // Por simplicidad inicial, unimos los dos arrays para mostrarlos en una sola tabla:
+          dataFinal = [
+              ...data.detalle.jugadores,
+              ...data.detalle.tecnicos
+          ];
+      }
+
+      setDatosReporte(dataFinal);
+      
+    } catch (error) {
+      console.error('Error al obtener el reporte:', error);
+      // Podrías establecer un estado de error aquí
+      setDatosReporte([]); 
+    } finally {
       setCargando(false);
-    }, 1000);
+    }
   };
 
   return (
