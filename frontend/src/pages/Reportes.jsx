@@ -28,6 +28,9 @@ export default function Reportes() {
   const [datosReporte, setDatosReporte] = useState([]);
   const [cargando, setCargando] = useState(false);
 
+  // AÑADE ESTE NUEVO ESTADO:
+  const [apiData, setApiData] = useState(null);
+
   const handleEjecutarReporte = async (reporte) => {
     if (!reporte.ruta) return; // Evitar llamadas si la ruta no existe
 
@@ -43,6 +46,9 @@ export default function Reportes() {
       }
 
       const data = await response.json();
+
+      // AÑADE ESTA LÍNEA CLAVE:
+      setApiData(data); // Guarda el objeto completo (incluyendo el semáforo)
 
       // 💡 Lógica crucial: Extraer los datos del campo 'data' o 'detalle'
       let dataFinal = [];
@@ -121,6 +127,20 @@ export default function Reportes() {
           {datosReporte.length > 0 && !cargando && (
             <div>
               <h2 className="text-xl font-semibold mb-4">{reporteActivo.nombre}</h2>
+              {/* REPORTE 7: Muestra el total salarial si es el reporte activo */}
+              {reporteActivo.id === 7 && apiData && (
+                <div className="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-800 text-xl font-bold">
+                  GRAN TOTAL MENSUAL: S/. {apiData.gran_total_soles.toLocaleString('es-ES')}
+                </div>
+              )}
+              {/* REPORTE 8: Muestra el estado del semáforo si es el reporte activo */}
+              {reporteActivo.id === 8 && apiData && (
+                <div className="mb-4 p-3 bg-blue-100 border-l-4 border-blue-500 text-blue-800">
+                  <p className="font-bold">Estado del Cupo:</p>
+                  {/* Accede a la propiedad del semáforo del objeto completo */}
+                  <p>{apiData.estado_semaforo}</p> 
+                </div>
+              )}
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
