@@ -2,6 +2,190 @@ const oracledb = require('oracledb');
 const { getConnection } = require('../config/database');
 
 // ===================================================================
+// REPORTE 6: RIESGO DE FUGA (CURSOR)
+// ===================================================================
+
+async function getRiesgoFuga() {
+    let connection;
+    try {
+        connection = await getConnection();
+        console.log(' [REPORTE 6] Conexión exitosa');
+
+        const result = await connection.execute(
+            `BEGIN
+              SP_REPORTE_RIESGO_FUGA(:cursor);
+            END;`,
+            {
+                cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT } // Captura el detalle de riesgo
+            }
+        );
+
+        console.log(' [REPORTE 6] Procedimiento ejecutado');
+        
+        const cursor = result.outBinds.cursor;
+        const rows = await cursor.getRows(100);
+        await cursor.close();
+
+        // Mapeamos las 6 columnas de salida
+        const data = rows.map(row => ({
+            nombre_completo: row[0],
+            valor_mercado: parseFloat(row[1]),
+            clausula_original: parseFloat(row[2]),
+            moneda_original: row[3],
+            clausula_en_usd: parseFloat(row[4]),
+            estado_de_riesgo: row[5] // Aquí viene el mensaje de semáforo
+        }));
+        
+        return {
+            success: true,
+            reporte: 'Riesgo de Fuga Patrimonial',
+            cantidad_analizada: data.length,
+            data: data
+        };
+
+    } catch (error) {
+        console.error(' [REPORTE 6] Error:', error.message);
+        throw {
+            status: 500,
+            message: 'Error al ejecutar reporte Riesgo de Fuga',
+            details: error.message
+        };
+    } finally {
+        if (connection) await connection.close();
+    }
+}
+
+// ===================================================================
+// REPORTE 7: PROYECCIÓN PLANILLA (3 Parámetros de Salida)
+// ===================================================================
+
+async function getProyeccionPlanilla() {
+    let connection;
+    try {
+        connection = await getConnection();
+        console.log(' [REPORTE 7] Conexión exitosa');
+
+        const result = await connection.execute(
+            `BEGIN
+              SP_REPORTE_PROYECCION_PLANILLA(:jugadores_cursor, :tecnicos_cursor, :total);
+            END;`,
+            {
+                jugadores_cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT },
+                tecnicos_cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT },
+                total: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } // Captura el gran total
+            }
+        );
+
+        console.log(' [REPORTE 7] Procedimiento ejecutado');
+        
+        // 1. Procesar Detalle Jugadores
+        const jugCursor = result.outBinds.jugadores_cursor;
+        const jugRows = await jugCursor.getRows(100);
+        await jugCursor.close();
+
+        const detalleJugadores = jugRows.map(row => ({
+            nombre_completo: row[0],
+            salario_original: parseFloat(row[1]),
+            moneda_original: row[2],
+            salario_en_soles: parseFloat(row[3])
+        }));
+
+        // 2. Procesar Detalle Técnicos
+        const tecCursor = result.outBinds.tecnicos_cursor;
+        const tecRows = await tecCursor.getRows(100);
+        await tecCursor.close();
+
+        const detalleTecnicos = tecRows.map(row => ({
+            nombre_completo: row[0],
+            salario_original: parseFloat(row[1]),
+            moneda_original: row[2],
+            salario_en_soles: parseFloat(row[3])
+        }));
+        
+        // 3. Devolver los resultados estructurados
+        return {
+            success: true,
+            reporte: 'Proyección de Planilla',
+            gran_total_soles: parseFloat(result.outBinds.total), // El total final
+            detalle: {
+                jugadores: detalleJugadores,
+                tecnicos: detalleTecnicos,
+                sub_total_jugadores: detalleJugadores.reduce((acc, curr) => acc + curr.salario_en_soles, 0),
+                sub_total_tecnicos: detalleTecnicos.reduce((acc, curr) => acc + curr.salario_en_soles, 0),
+            }
+        };
+
+    } catch (error) {
+        console.error(' [REPORTE 7] Error:', error.message);
+        throw {
+            status: 500,
+            message: 'Error al ejecutar reporte Proyección Planilla',
+            details: error.message
+        };
+    } finally {
+        if (connection) await connection.close();
+    }
+}
+
+// ===================================================================
+// REPORTE 8: CONTROL DE EXTRANJEROS (CURSOR)
+// ===================================================================
+
+async function getControlExtranjeros() {
+    let connection;
+    try {
+        connection = await getConnection();
+        console.log(' [REPORTE 8] Conexión exitosa');
+
+        const result = await connection.execute(
+            // Llamamos al procedimiento con los dos parámetros de salida
+            `BEGIN
+              SP_REPORTE_CONTROL_EXTRANJEROS(:estado, :cursor);
+            END;`,
+            {
+                estado: { type: oracledb.STRING, dir: oracledb.BIND_OUT }, // Captura el mensaje del semáforo
+                cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT } // Captura el detalle de jugadores
+            }
+        );
+
+        console.log(' [REPORTE 8] Procedimiento ejecutado');
+        
+        // 1. Obtener la data del cursor
+        const cursor = result.outBinds.cursor;
+        const rows = await cursor.getRows(100);
+        await cursor.close();
+
+        // 2. Procesar los resultados (mapeo para el frontend)
+        const data = rows.map(row => ({
+            nombre_completo: row[0],
+            posicion: row[1],
+            fecha_vencimiento_contrato: row[2] ? row[2].toISOString().split('T')[0] : null,
+            situacion_actual: row[3],
+            pais_origen: row[4]
+        }));
+        
+        // 3. Devolver los dos resultados clave
+        return {
+            success: true,
+            reporte: 'Control de Extranjeros',
+            estado_semaforo: result.outBinds.estado, // El resultado del semáforo
+            cantidad_extranjeros: data.length,
+            data: data
+        };
+
+    } catch (error) {
+        console.error(' [REPORTE 8] Error:', error.message);
+        throw {
+            status: 500,
+            message: 'Error al ejecutar reporte Control de Extranjeros',
+            details: error.message
+        };
+    } finally {
+        if (connection) await connection.close();
+    }
+}
+
+// ===================================================================
 // REPORTE 9: BALANCE CANTERA VS. FICHAJES (TACO)
 // ===================================================================
 
@@ -111,6 +295,9 @@ async function getJugadoresCedidos() {
 }
 
 module.exports = {
+  getRiesgoFuga,
+  getProyeccionPlanilla,
+  getControlExtranjeros,
   getBalanceCantera,
   getJugadoresCedidos
 };
