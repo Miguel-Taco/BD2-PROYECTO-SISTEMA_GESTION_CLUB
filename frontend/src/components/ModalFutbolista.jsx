@@ -3,7 +3,8 @@ import Modal from './Modal';
 import { InputConIcono, SelectConIcono } from './ui';
 import { mockPaises, mockPosiciones, mockClubes } from '../data/mockData';
 import { 
-  DollarSign, Flag, ShieldCheck, Building, CalendarDays, UserCheck 
+  DollarSign, Flag, ShieldCheck, Building, CalendarDays, UserCheck, Activity, Briefcase,
+  Globe, Users, FileText, TrendingUp, BadgeDollarSign, FileCheck
 } from 'lucide-react';
 
 export default function ModalFutbolista(
@@ -22,18 +23,18 @@ export default function ModalFutbolista(
           <InputConIcono 
             icon={<UserCheck size={16} />}
             type="text"
-            name="nombre"
-            placeholder="Nombre"
-            value={formData.nombre}
+            name="nombres"
+            placeholder="Nombres"
+            value={formData.nombres}
             onChange={handleChange}
             required
           />
           <InputConIcono 
             icon={<UserCheck size={16} />}
             type="text"
-            name="apellido"
-            placeholder="Apellido"
-            value={formData.apellido}
+            name="apellidos"
+            placeholder="Apellidos"
+            value={formData.apellidos}
             onChange={handleChange}
             required
           />
@@ -47,44 +48,132 @@ export default function ModalFutbolista(
           onChange={handleChange}
           required
         />
+        <div className="grid grid-cols-2 gap-4">
+          <SelectConIcono
+            icon={<Flag size={16} />}
+            name="id_pais"
+            value={formData.id_pais}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Seleccionar País</option>
+            {mockPaises.map(p => <option key={p.id_pais} value={p.id_pais}>{p.nombre_pais}</option>)}
+          </SelectConIcono>
+          <SelectConIcono
+            icon={<ShieldCheck size={16} />}
+            name="id_posicion"
+            value={formData.id_posicion}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Seleccionar Posición</option>
+            {mockPosiciones.map(p => <option key={p.id_posicion} value={p.id_posicion}>{p.nombre_posicion}</option>)}
+          </SelectConIcono>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <SelectConIcono
+            icon={<Globe size={16} />}
+            name="es_extranjero"
+            value={formData.es_extranjero}
+            onChange={handleChange}
+            required
+          >
+            <option value="">¿Es Extranjero?</option>
+            <option value="S">Sí</option>
+            <option value="N">No</option>
+          </SelectConIcono>
+          <SelectConIcono
+            icon={<Users size={16} />}
+            name="es_canterano"
+            value={formData.es_canterano}
+            onChange={handleChange}
+            required
+          >
+            <option value="">¿Es Canterano?</option>
+            <option value="S">Sí</option>
+            <option value="N">No</option>
+          </SelectConIcono>
+        </div>
         <InputConIcono 
-          icon={<DollarSign size={16} />}
-          type="number"
-          name="valor_mercado"
-          placeholder="Valor de Mercado (EUR)"
-          value={formData.valor_mercado}
+          icon={<Building size={16} />}
+          type="text"
+          name="club_formacion"
+          placeholder="Club de Formación"
+          value={formData.club_formacion}
           onChange={handleChange}
-          required
         />
         <SelectConIcono
-          icon={<Flag size={16} />}
-          name="id_pais"
-          value={formData.id_pais}
+          icon={<Briefcase size={16} />}
+          name="situacion_actual"
+          value={formData.situacion_actual}
           onChange={handleChange}
           required
         >
-          <option value="">Seleccionar País</option>
-          {mockPaises.map(p => <option key={p.id_pais} value={p.id_pais}>{p.nombre_pais}</option>)}
+          <option value="">Seleccionar Situación Actual</option>
+          <option value="Activo">Activo</option>
+          <option value="Cedido_Saliente">Cedido Saliente</option>
+          <option value="Prestamo_Entrante">Préstamo Entrante</option>
+          <option value="Baja">Baja</option>
         </SelectConIcono>
-         <SelectConIcono
-          icon={<ShieldCheck size={16} />}
-          name="id_posicion"
-          value={formData.id_posicion}
+        <InputConIcono 
+          icon={<FileText size={16} />}
+          type="text"
+          name="detalle_baja"
+          placeholder="Detalle de Baja (opcional)"
+          value={formData.detalle_baja}
+          onChange={handleChange}
+        />
+        <InputConIcono 
+          icon={<CalendarDays size={16} />}
+          type="date"
+          name="fecha_retorno_estimada"
+          placeholder="Fecha de Retorno Estimada"
+          value={formData.fecha_retorno_estimada}
+          onChange={handleChange}
+        />
+        <div className="grid grid-cols-2 gap-4">
+          <InputConIcono 
+            icon={<TrendingUp size={16} />}
+            type="number"
+            name="valor_mercado"
+            placeholder="Valor de Mercado (EUR)"
+            value={formData.valor_mercado}
+            onChange={handleChange}
+            required
+          />
+          <InputConIcono 
+            icon={<BadgeDollarSign size={16} />}
+            type="number"
+            name="costo_fichaje"
+            placeholder="Costo de Fichaje (EUR)"
+            value={formData.costo_fichaje}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <SelectConIcono
+          icon={<Activity size={16} />}
+          name="estado_medico"
+          value={formData.estado_medico}
           onChange={handleChange}
           required
         >
-          <option value="">Seleccionar Posición</option>
-          {mockPosiciones.map(p => <option key={p.id_posicion} value={p.id_posicion}>{p.nombre_posicion}</option>)}
+          <option value="">Seleccionar Estado Médico</option>
+          <option value="A">Activo</option>
+          <option value="L">Lesionado</option>
+          <option value="S">Suspendido</option>
         </SelectConIcono>
         <SelectConIcono
-          icon={<Building size={16} />}
-          name="id_club"
-          value={formData.id_club}
+          icon={<FileCheck size={16} />}
+          name="estado_contrato"
+          value={formData.estado_contrato}
           onChange={handleChange}
           required
         >
-          <option value="">Seleccionar Club</option>
-          {mockClubes.map(c => <option key={c.id_club} value={c.id_club}>{c.nombre_club}</option>)}
+          <option value="">Seleccionar Estado Contrato</option>
+          <option value="A">Activo</option>
+          <option value="S">Suspendido</option>
+          <option value="R">Rescindido</option>
         </SelectConIcono>
 
         <div className="flex justify-end space-x-3 pt-4">
