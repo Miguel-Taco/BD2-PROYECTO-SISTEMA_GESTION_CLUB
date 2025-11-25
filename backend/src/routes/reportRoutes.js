@@ -6,7 +6,7 @@ router.get('/1/masa-salarial', reportController.getMasaSalarialTotal);
 router.get('/2/valor-mercado', reportController.getValorMercadoPlantel);
 router.get('/3/roi-fichajes', reportController.getRoiFichajes);
 
-// REPORTES (4, 5)
+// REPORTES VERA(4, 5)
 router.get('/4/distribucion-edad', reportController.getDistribucionEdad);
 router.get('/5/vencimientos-contrato', reportController.getVencimientosContrato);
 

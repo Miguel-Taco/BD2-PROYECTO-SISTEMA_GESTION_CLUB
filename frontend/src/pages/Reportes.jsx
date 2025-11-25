@@ -27,7 +27,7 @@ const listaReportes = [
   { id: 7, nombre: 'Reporte de Proyección Planilla', ruta: '/api/reportes/7/bajas-disponibilidad' },
   { id: 8, nombre: 'Reporte de Control de Extranjeros', ruta: '/api/reportes/8/control-extranjeros' },
   { id: 9, nombre: 'Reporte de Balance Cantera vs. Fichajes', ruta: '/api/reportes/9/balance-cantera' },
-  { id: 10, nombre: 'Reporte de ROI de Fichajes', ruta: '/api/reportes/10/jugadores-cedidos' },
+  { id: 10, nombre: 'Reporte de jugadores cedidos', ruta: '/api/reportes/10/jugadores-cedidos' },
 ];
 
 
