@@ -18,16 +18,16 @@ const obtenerClaseRiesgo = (estado) => {
 
 // Lista de los 10 reportes (Asumo que la Masa Salarial (R1) usará la ruta compleja /1/masa-salarial)
 const listaReportes = [
-    { id: 1, nombre: 'Reporte de Masa Salarial Total', ruta: '/api/reportes/1/masa-salarial' }, // Ruta del R1
-    { id: 2, nombre: 'Reporte de Valor de Mercado del Plantel' },
-    { id: 3, nombre: 'Reporte de ROI de Fichajes' },
-    { id: 4, nombre: 'Reporte de Distribución de Edad' },
-    { id: 5, nombre: 'Reporte de Próximos Vencimientos de Contrato' },
-    { id: 6, nombre: 'Reporte de Riesgo de Fuga', ruta: '/api/reportes/6/riesgo-fuga' },
-    { id: 7, nombre: 'Reporte de Bajas y Disponibilidad', ruta: '/api/reportes/7/bajas-disponibilidad' },
-    { id: 8, nombre: 'Reporte de Control de Extranjeros', ruta: '/api/reportes/8/control-extranjeros' },
-    { id: 9, nombre: 'Reporte de Balance Cantera vs. Fichajes', ruta: '/api/reportes/9/balance-cantera' },
-    { id: 10, nombre: 'Reporte: Gestión de Préstamos ', ruta: '/api/reportes/10/jugadores-cedidos' },
+  { id: 1, nombre: 'Reporte de Masa Salarial Total', ruta: '/api/reportes/1/masa-salarial' },
+  { id: 2, nombre: 'Reporte de Valor de Mercado del Plantel', ruta: '/api/reportes/2/valor-mercado' },
+  { id: 3, nombre: 'Reporte de ROI de Fichajes', ruta: '/api/reportes/3/roi-fichajes' },
+  { id: 4, nombre: 'Reporte de Próximas Vencimientos de Contrato' },
+  { id: 5, nombre: 'Reporte de Promedio de Edad del Plantel' },
+  { id: 6, nombre: 'Reporte de Riesgo de Fuga', ruta: '/api/reportes/6/riesgo-fuga' },
+  { id: 7, nombre: 'Reporte de Proyección Planilla', ruta: '/api/reportes/7/bajas-disponibilidad' },
+  { id: 8, nombre: 'Reporte de Control de Extranjeros', ruta: '/api/reportes/8/control-extranjeros' },
+  { id: 9, nombre: 'Reporte de Balance Cantera vs. Fichajes', ruta: '/api/reportes/9/balance-cantera' },
+  { id: 10, nombre: 'Reporte de ROI de Fichajes', ruta: '/api/reportes/10/jugadores-cedidos' },
 ];
 
 
