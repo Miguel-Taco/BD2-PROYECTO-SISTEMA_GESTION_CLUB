@@ -1,8 +1,17 @@
 import React from 'react';
 import Modal from './Modal';
 import { InputConIcono, SelectConIcono } from './ui';
-import { mockPaises, mockClubes } from '../data/mockData';
-import { Flag, FileText, Building, CalendarDays, UserCheck } from 'lucide-react';
+import { mockPaises } from '../data/mockData';
+
+const mockRoles = [
+  { id_rol: 1, nombre_rol: 'Director Técnico' },
+  { id_rol: 2, nombre_rol: 'Entrenador Asistente' },
+  { id_rol: 3, nombre_rol: 'Preparador Físico' },
+  { id_rol: 4, nombre_rol: 'Analista' },
+  { id_rol: 5, nombre_rol: 'Médico' },
+  { id_rol: 6, nombre_rol: 'Fisioterapeuta' },
+];
+import { Flag, FileText, CalendarDays, UserCheck, DollarSign, Briefcase } from 'lucide-react';
 
 export default function ModalTecnico(
   { isVisible, onClose, mode, formData, handleChange, handleSubmit }
@@ -20,18 +29,18 @@ export default function ModalTecnico(
           <InputConIcono 
             icon={<UserCheck size={16} />}
             type="text"
-            name="nombre"
-            placeholder="Nombre"
-            value={formData.nombre}
+            name="nombres"
+            placeholder="Nombres"
+            value={formData.nombres}
             onChange={handleChange}
             required
           />
           <InputConIcono 
             icon={<UserCheck size={16} />}
             type="text"
-            name="apellido"
-            placeholder="Apellido"
-            value={formData.apellido}
+            name="apellidos"
+            placeholder="Apellidos"
+            value={formData.apellidos}
             onChange={handleChange}
             required
           />
@@ -42,15 +51,6 @@ export default function ModalTecnico(
           name="fecha_nacimiento"
           placeholder="Fecha de Nacimiento"
           value={formData.fecha_nacimiento}
-          onChange={handleChange}
-          required
-        />
-        <InputConIcono 
-          icon={<FileText size={16} />}
-          type="text"
-          name="rol"
-          placeholder="Rol (Ej: Director Técnico)"
-          value={formData.rol}
           onChange={handleChange}
           required
         />
@@ -65,15 +65,33 @@ export default function ModalTecnico(
           {mockPaises.map(p => <option key={p.id_pais} value={p.id_pais}>{p.nombre_pais}</option>)}
         </SelectConIcono>
         <SelectConIcono
-          icon={<Building size={16} />}
-          name="id_club"
-          value={formData.id_club}
+          icon={<Briefcase size={16} />}
+          name="id_rol"
+          value={formData.id_rol}
           onChange={handleChange}
           required
         >
-          <option value="">Seleccionar Club</option>
-          {mockClubes.map(c => <option key={c.id_club} value={c.id_club}>{c.nombre_club}</option>)}
+          <option value="">Seleccionar Rol</option>
+          {mockRoles.map(r => <option key={r.id_rol} value={r.id_rol}>{r.nombre_rol}</option>)}
         </SelectConIcono>
+        <InputConIcono 
+          icon={<DollarSign size={16} />}
+          type="number"
+          name="salario_mensual"
+          placeholder="Salario Mensual (PEN)"
+          value={formData.salario_mensual}
+          onChange={handleChange}
+          required
+        />
+        <InputConIcono 
+          icon={<CalendarDays size={16} />}
+          type="date"
+          name="fecha_vencimiento_contrato"
+          placeholder="Fecha de Vencimiento del Contrato"
+          value={formData.fecha_vencimiento_contrato}
+          onChange={handleChange}
+          required
+        />
 
         <div className="flex justify-end space-x-3 pt-4">
           <button type="button" onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
