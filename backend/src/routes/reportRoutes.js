@@ -12,7 +12,7 @@ router.get('/5/vencimientos-contrato', reportController.getVencimientosContrato)
 
 // REPORTES LEONSILLO (6, 7, 8)
 router.get('/6/riesgo-fuga', reportController.getRiesgoFuga);
-router.get('/7/proyeccion-planilla', reportController.getProyeccionPlanilla);
+router.get('/7/bajas-disponibilidad', reportController.getBajasDisponibilidad);
 router.get('/8/control-extranjeros', reportController.getControlExtranjeros);
 
 // REPORTES TACO (9 y 10)
