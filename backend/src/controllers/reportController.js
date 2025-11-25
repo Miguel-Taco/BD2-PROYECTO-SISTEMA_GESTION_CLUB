@@ -11,15 +11,15 @@ const getRiesgoFuga = async (req, res, next) => {
 };
 
 // Controlador para el Reporte 7
-const getProyeccionPlanilla = async (req, res, next) => {
+const getBajasDisponibilidad = async (req, res, next) => {
     try {
-        const data = await reportService.getProyeccionPlanilla();
+        // Llama a la nueva función del servicio
+        const data = await reportService.getBajasDisponibilidad(); 
         res.status(200).json(data);
     } catch (error) {
         next(error);
     }
 };
-
 // Controlador para el Reporte 8
 const getControlExtranjeros = async (req, res, next) => {
     try {
@@ -52,7 +52,7 @@ async function getJugadoresCedidos(req, res, next) {
 
 module.exports = {
   getRiesgoFuga,
-  getProyeccionPlanilla,
+  getBajasDisponibilidad,
   getControlExtranjeros,
   getBalanceCantera,
   getJugadoresCedidos

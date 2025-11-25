@@ -59,7 +59,7 @@ async function getRiesgoFuga() {
 // REPORTE 7: PROYECCIÓN PLANILLA (3 Parámetros de Salida)
 // ===================================================================
 
-async function getProyeccionPlanilla() {
+async function getBajasDisponibilidad() {
     let connection;
     try {
         connection = await getConnection();
@@ -67,59 +67,41 @@ async function getProyeccionPlanilla() {
 
         const result = await connection.execute(
             `BEGIN
-              SP_REPORTE_PROYECCION_PLANILLA(:jugadores_cursor, :tecnicos_cursor, :total);
+              SP_REPORTE_BAJAS_DISPONIBILIDAD(:cursor, :total);
             END;`,
             {
-                jugadores_cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT },
-                tecnicos_cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT },
-                total: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT } // Captura el gran total
+                cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT },
+                total: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT }
             }
         );
 
         console.log(' [REPORTE 7] Procedimiento ejecutado');
         
-        // 1. Procesar Detalle Jugadores
-        const jugCursor = result.outBinds.jugadores_cursor;
-        const jugRows = await jugCursor.getRows(100);
-        await jugCursor.close();
+        const cursor = result.outBinds.cursor;
+        const rows = await cursor.getRows(100);
+        await cursor.close();
 
-        const detalleJugadores = jugRows.map(row => ({
+        const data = rows.map(row => ({
             nombre_completo: row[0],
-            salario_original: parseFloat(row[1]),
-            moneda_original: row[2],
-            salario_en_soles: parseFloat(row[3])
-        }));
-
-        // 2. Procesar Detalle Técnicos
-        const tecCursor = result.outBinds.tecnicos_cursor;
-        const tecRows = await tecCursor.getRows(100);
-        await tecCursor.close();
-
-        const detalleTecnicos = tecRows.map(row => ({
-            nombre_completo: row[0],
-            salario_original: parseFloat(row[1]),
-            moneda_original: row[2],
-            salario_en_soles: parseFloat(row[3])
+            nombre_posicion: row[1],
+            motivo_baja: row[2],
+            detalle_baja: row[3],
+            fecha_retorno_estimada: row[4] ? row[4].toISOString().split('T')[0] : 'N/A',
+            dias_restantes_retorno: row[5]
         }));
         
-        // 3. Devolver los resultados estructurados
         return {
             success: true,
-            reporte: 'Proyección de Planilla',
-            gran_total_soles: parseFloat(result.outBinds.total), // El total final
-            detalle: {
-                jugadores: detalleJugadores,
-                tecnicos: detalleTecnicos,
-                sub_total_jugadores: detalleJugadores.reduce((acc, curr) => acc + curr.salario_en_soles, 0),
-                sub_total_tecnicos: detalleTecnicos.reduce((acc, curr) => acc + curr.salario_en_soles, 0),
-            }
+            reporte: 'Bajas y Disponibilidad (Carga por Lesión)',
+            total_bajas: parseFloat(result.outBinds.total),
+            data: data
         };
 
     } catch (error) {
         console.error(' [REPORTE 7] Error:', error.message);
         throw {
             status: 500,
-            message: 'Error al ejecutar reporte Proyección Planilla',
+            message: 'Error al ejecutar reporte Bajas y Disponibilidad',
             details: error.message
         };
     } finally {
@@ -296,7 +278,7 @@ async function getJugadoresCedidos() {
 
 module.exports = {
   getRiesgoFuga,
-  getProyeccionPlanilla,
+  getBajasDisponibilidad,
   getControlExtranjeros,
   getBalanceCantera,
   getJugadoresCedidos
