@@ -13,8 +13,8 @@ const listaReportes = [
   { id: 6, nombre: 'Reporte de Riesgo de Fuga', ruta: '/api/reportes/6/riesgo-fuga' },
   { id: 7, nombre: 'Reporte de Proyección Planilla', ruta: '/api/reportes/7/proyeccion-planilla' },
   { id: 8, nombre: 'Reporte de Control de Extranjeros', ruta: '/api/reportes/8/control-extranjeros' },
-  { id: 9, nombre: 'Reporte de Balance Cantera vs. Fichajes' },
-  { id: 10, nombre: 'Reporte de ROI de Fichajes' },
+  { id: 9, nombre: 'Reporte de Balance Cantera vs. Fichajes', ruta: '/api/reportes/9/balance-cantera' },
+  { id: 10, nombre: 'Reporte de ROI de Fichajes', ruta: '/api/reportes/10/jugadores-cedidos' },
 ];
 
 // Mock de lo que devolvería un SYS_REFCURSOR
