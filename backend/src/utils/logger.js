@@ -3,9 +3,14 @@ function log(message, type = 'info') {
   console.log(`[${timestamp}] [${type.toUpperCase()}] ${message}`);
 }
 
-function logError(message, error) {
+function error(message, err) {
   const timestamp = new Date().toISOString();
-  console.error(`[${timestamp}] [ERROR] ${message}`, error);
+  console.error(`[${timestamp}] [ERROR] ${message}`, err);
 }
 
-module.exports = { log, logError };
+module.exports = { 
+  log, 
+  error,
+  info: (msg) => log(msg, 'info'),
+  warn: (msg) => log(msg, 'warn')
+};

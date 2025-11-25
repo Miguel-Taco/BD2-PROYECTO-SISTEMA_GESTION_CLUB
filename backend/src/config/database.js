@@ -16,11 +16,15 @@ async function getConnection() {
   }
 }
 
-async function executeQuery(query, params = []) {
+async function executeQuery(query, params = [], options = {}) {
   let connection;
   try {
     connection = await getConnection();
-    const result = await connection.execute(query, params);
+    const result = await connection.execute(query, params, {
+      outFormat: oracledb.OUT_FORMAT_OBJECT,
+      autoCommit: true,
+      ...options
+    });
     return result;
   } catch (error) {
     throw error;

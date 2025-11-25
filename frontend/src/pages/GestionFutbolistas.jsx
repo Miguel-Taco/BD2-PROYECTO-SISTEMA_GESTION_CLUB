@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { BotonAccion } from '../components/ui';
-import { getPosicionNombre, getClubNombre, getPaisNombre, calcularEdad } from '../utils/helpers';
+import { calcularEdad } from '../utils/helpers';
 import { useData } from '../context/DataContext';
 
 // ¡Importamos los nuevos modales!
@@ -9,17 +9,24 @@ import ModalFutbolista from '../components/ModalFutbolista';
 import ModalConfirmar from '../components/ModalConfirmar';
 
 const FORM_DATA_INICIAL = {
-  nombre: '',
-  apellido: '',
+  nombres: '',
+  apellidos: '',
   fecha_nacimiento: '',
-  valor_mercado: '',
   id_pais: '',
   id_posicion: '',
-  id_club: '',
+  es_extranjero: '',
+  es_canterano: '',
+  club_formacion: '',
+  situacion_actual: '',
+  detalle_baja: '',
+  fecha_retorno_estimada: '',
+  valor_mercado: '',
+  costo_fichaje: '',
+  estado_medico: ''
 };
 
 export default function GestionFutbolistas() {
-  const { futbolistas, setFutbolistas } = useData();
+  const { futbolistas, addFutbolista, updateFutbolista, deleteFutbolista, loading } = useData();
 
   // Estado para el modal de Add/Edit
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -35,7 +42,23 @@ export default function GestionFutbolistas() {
     setModalMode(mode);
     if (mode === 'EDIT' && futbolista) {
       setCurrentFutbolista(futbolista);
-      setFormData({ ...futbolista });
+      // Mapear los datos de Oracle (mayúsculas) a formData (minúsculas)
+      setFormData({
+        nombres: futbolista.NOMBRES,
+        apellidos: futbolista.APELLIDOS,
+        fecha_nacimiento: futbolista.FECHA_NACIMIENTO?.split('T')[0] || futbolista.FECHA_NACIMIENTO,
+        id_pais: futbolista.ID_PAIS,
+        id_posicion: futbolista.ID_POSICION,
+        es_extranjero: futbolista.ES_EXTRANJERO || '',
+        es_canterano: futbolista.ES_CANTERANO || '',
+        club_formacion: futbolista.CLUB_FORMACION || '',
+        situacion_actual: futbolista.SITUACION_ACTUAL || '',
+        detalle_baja: futbolista.DETALLE_BAJA || '',
+        fecha_retorno_estimada: futbolista.FECHA_RETORNO_ESTIMADA?.split('T')[0] || '',
+        valor_mercado: futbolista.VALOR_MERCADO,
+        costo_fichaje: futbolista.COSTO_FICHAJE || '',
+        estado_medico: futbolista.ESTADO_MEDICO || ''
+      });
     } else {
       setCurrentFutbolista(null);
       setFormData(FORM_DATA_INICIAL);
@@ -54,49 +77,64 @@ export default function GestionFutbolistas() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (modalMode === 'ADD') {
-      const nuevoFutbolista = {
-        id_futbolista: Date.now(),
-        ...formData,
+    try {
+      const futbolistaData = {
+        nombres: formData.nombres,
+        apellidos: formData.apellidos,
+        fecha_nacimiento: formData.fecha_nacimiento,
         id_pais: parseInt(formData.id_pais),
         id_posicion: parseInt(formData.id_posicion),
-        id_club: parseInt(formData.id_club),
+        es_extranjero: formData.es_extranjero,
+        es_canterano: formData.es_canterano,
+        club_formacion: formData.club_formacion,
+        situacion_actual: formData.situacion_actual,
+        detalle_baja: formData.detalle_baja || null,
+        fecha_retorno_estimada: formData.fecha_retorno_estimada || null,
         valor_mercado: parseFloat(formData.valor_mercado),
+        costo_fichaje: parseFloat(formData.costo_fichaje),
+        estado_medico: formData.estado_medico
       };
-      setFutbolistas([...futbolistas, nuevoFutbolista]);
-    } else if (modalMode === 'EDIT') {
-      setFutbolistas(futbolistas.map(f => 
-        f.id_futbolista === currentFutbolista.id_futbolista 
-        ? { 
-          ...f, 
-          ...formData, 
-          id_pais: parseInt(formData.id_pais),
-          id_posicion: parseInt(formData.id_posicion),
-          id_club: parseInt(formData.id_club),
-          valor_mercado: parseFloat(formData.valor_mercado)
-         } 
-        : f
-      ));
+
+      if (modalMode === 'ADD') {
+        await addFutbolista(futbolistaData);
+      } else if (modalMode === 'EDIT') {
+        await updateFutbolista(currentFutbolista.ID_FUTBOLISTA, futbolistaData);
+      }
+      cerrarModalForm();
+    } catch (error) {
+      console.error('Error al guardar futbolista:', error);
+      alert('Error al guardar el futbolista');
     }
-    cerrarModalForm();
   };
   
-  // Lógica de eliminación actualizada
   const abrirModalConfirmar = (id_futbolista) => {
     setIdParaEliminar(id_futbolista);
     setIsConfirmModalOpen(true);
   };
+
+  if (loading) {
+    return (
+      <div className="p-6 flex justify-center items-center">
+        <div className="text-xl">Cargando...</div>
+      </div>
+    );
+  }
 
   const cerrarModalConfirmar = () => {
     setIdParaEliminar(null);
     setIsConfirmModalOpen(false);
   };
 
-  const handleEliminarConfirmado = () => {
-    setFutbolistas(futbolistas.filter(f => f.id_futbolista !== idParaEliminar));
-    cerrarModalConfirmar();
+  const handleEliminarConfirmado = async () => {
+    try {
+      await deleteFutbolista(idParaEliminar);
+      cerrarModalConfirmar();
+    } catch (error) {
+      console.error('Error al eliminar futbolista:', error);
+      alert('Error al eliminar el futbolista');
+    }
   };
 
   return (
@@ -128,13 +166,13 @@ export default function GestionFutbolistas() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {futbolistas.map(f => (
-              <tr key={f.id_futbolista}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{f.nombre} {f.apellido}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getPaisNombre(f.id_pais)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getPosicionNombre(f.id_posicion)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getClubNombre(f.id_club)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{calcularEdad(f.fecha_nacimiento)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{f.valor_mercado.toLocaleString('es-ES')}</td>
+              <tr key={f.ID_FUTBOLISTA}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{f.NOMBRES} {f.APELLIDOS}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{f.NOMBRE_PAIS || 'N/A'}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{f.NOMBRE_POSICION || 'N/A'}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{calcularEdad(f.FECHA_NACIMIENTO)}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{Number(f.VALOR_MERCADO).toLocaleString('es-ES')}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                   <BotonAccion 
                     onClick={() => abrirModalForm('EDIT', f)}
@@ -142,7 +180,7 @@ export default function GestionFutbolistas() {
                     colorClass="hover:bg-yellow-100 text-yellow-600"
                   />
                   <BotonAccion 
-                    onClick={() => abrirModalConfirmar(f.id_futbolista)} // <-- Llama al modal de confirmar
+                    onClick={() => abrirModalConfirmar(f.ID_FUTBOLISTA)}
                     icon={<Trash2 size={16} />}
                     colorClass="hover:bg-red-100 text-red-600"
                   />

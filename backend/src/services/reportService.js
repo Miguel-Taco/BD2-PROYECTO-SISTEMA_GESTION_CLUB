@@ -1,15 +1,11 @@
 const oracledb = require('oracledb');
 const { getConnection } = require('../config/database');
 
-// ===================================================================
-// REPORTE 1: MASA SALARIAL TOTAL
-// ===================================================================
-
 async function getMasaSalarialTotal() {
     let connection;
     try {
         connection = await getConnection();
-        console.log(' [REPORTE 1] Conexión exitosa');
+        console.log('[REPORTE 1] Conexión exitosa');
 
         const result = await connection.execute(
             `BEGIN
@@ -22,7 +18,7 @@ async function getMasaSalarialTotal() {
             }
         );
         
-        console.log(' [REPORTE 1] Procedimiento ejecutado');
+        console.log('[REPORTE 1] Procedimiento ejecutado');
         
         const jugCursor = result.outBinds.jugadores_cursor;
         const jugRows = await jugCursor.getRows(100);
@@ -59,7 +55,7 @@ async function getMasaSalarialTotal() {
         };
 
     } catch (error) {
-        console.error(' [REPORTE 1] Error:', error.message);
+        console.error('[REPORTE 1] Error:', error.message);
         throw {
             status: 500,
             message: 'Error al ejecutar reporte Masa Salarial Total',
@@ -70,15 +66,11 @@ async function getMasaSalarialTotal() {
     }
 }
 
-// ===================================================================
-// REPORTE 2: VALOR DE MERCADO DEL PLANTEL
-// ===================================================================
-
 async function getValorMercadoPlantel() {
     let connection;
     try {
         connection = await getConnection();
-        console.log(' [REPORTE 2] Conexión exitosa');
+        console.log('[REPORTE 2] Conexión exitosa');
 
         const result = await connection.execute(
             `BEGIN
@@ -90,7 +82,7 @@ async function getValorMercadoPlantel() {
             }
         );
         
-        console.log(' [REPORTE 2] Procedimiento ejecutado');
+        console.log('[REPORTE 2] Procedimiento ejecutado');
         
         const cursor = result.outBinds.cursor;
         const rows = await cursor.getRows(100);
@@ -112,7 +104,7 @@ async function getValorMercadoPlantel() {
         };
 
     } catch (error) {
-        console.error(' [REPORTE 2] Error:', error.message);
+        console.error('[REPORTE 2] Error:', error.message);
         throw {
             status: 500,
             message: 'Error al ejecutar reporte Valor de Mercado del Plantel',
@@ -123,15 +115,11 @@ async function getValorMercadoPlantel() {
     }
 }
 
-// ===================================================================
-// REPORTE 3: ROI DE FICHAJES
-// ===================================================================
-
 async function getRoiFichajes() {
   let connection;
   try {
     connection = await getConnection();
-    console.log(' [REPORTE 3] Conexión exitosa');
+    console.log('[REPORTE 3] Conexión exitosa');
 
     const result = await connection.execute(
       `BEGIN
@@ -142,7 +130,7 @@ async function getRoiFichajes() {
       }
     );
 
-    console.log(' [REPORTE 3] Procedimiento ejecutado');
+    console.log('[REPORTE 3] Procedimiento ejecutado');
     const cursor = result.outBinds.cursor;
     const rows = await cursor.getRows(100);
     await cursor.close();
@@ -163,7 +151,7 @@ async function getRoiFichajes() {
     };
 
   } catch (error) {
-    console.error(' [REPORTE 3] Error:', error.message);
+    console.error('[REPORTE 3] Error:', error.message);
     throw {
       status: 500,
       message: 'Error al ejecutar reporte ROI de Fichajes',
@@ -174,15 +162,11 @@ async function getRoiFichajes() {
   }
 }
 
-// ===================================================================
-// REPORTE 4: DISTRIBUCIÓN DE EDAD
-// ===================================================================
-
 async function getDistribucionEdad() {
     let connection;
     try {
         connection = await getConnection();
-        console.log(' [REPORTE 4] Conexión exitosa');
+        console.log('[REPORTE 4] Conexión exitosa');
 
         const result = await connection.execute(
             `BEGIN
@@ -193,7 +177,7 @@ async function getDistribucionEdad() {
             }
         );
 
-        console.log(' [REPORTE 4] Procedimiento ejecutado');
+        console.log('[REPORTE 4] Procedimiento ejecutado');
         
         const cursor = result.outBinds.cursor;
         const rows = await cursor.getRows(100);
@@ -215,7 +199,7 @@ async function getDistribucionEdad() {
         };
 
     } catch (error) {
-        console.error(' [REPORTE 4] Error:', error.message);
+        console.error('[REPORTE 4] Error:', error.message);
         throw {
             status: 500,
             message: 'Error al ejecutar reporte Distribución de Edad',
@@ -226,15 +210,11 @@ async function getDistribucionEdad() {
     }
 }
 
-// ===================================================================
-// REPORTE 5: PRÓXIMOS VENCIMIENTOS DE CONTRATO
-// ===================================================================
-
 async function getVencimientosContrato() {
     let connection;
     try {
         connection = await getConnection();
-        console.log(' [REPORTE 5] Conexión exitosa');
+        console.log('[REPORTE 5] Conexión exitosa');
 
         const result = await connection.execute(
             `BEGIN
@@ -245,7 +225,7 @@ async function getVencimientosContrato() {
             }
         );
 
-        console.log(' [REPORTE 5] Procedimiento ejecutado');
+        console.log('[REPORTE 5] Procedimiento ejecutado');
         
         const cursor = result.outBinds.cursor;
         const rows = await cursor.getRows(100);
@@ -274,7 +254,7 @@ async function getVencimientosContrato() {
         };
 
     } catch (error) {
-        console.error(' [REPORTE 5] Error:', error.message);
+        console.error('[REPORTE 5] Error:', error.message);
         throw {
             status: 500,
             message: 'Error al ejecutar reporte Vencimientos de Contrato',
@@ -285,39 +265,34 @@ async function getVencimientosContrato() {
     }
 }
 
-// ===================================================================
-// REPORTE 6: RIESGO DE FUGA (CURSOR)
-// ===================================================================
-
 async function getRiesgoFuga() {
     let connection;
     try {
         connection = await getConnection();
-        console.log(' [REPORTE 6] Conexión exitosa');
+        console.log('[REPORTE 6] Conexión exitosa');
 
         const result = await connection.execute(
             `BEGIN
               SP_REPORTE_RIESGO_FUGA(:cursor);
             END;`,
             {
-                cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT } // Captura el detalle de riesgo
+                cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT }
             }
         );
 
-        console.log(' [REPORTE 6] Procedimiento ejecutado');
+        console.log('[REPORTE 6] Procedimiento ejecutado');
         
         const cursor = result.outBinds.cursor;
         const rows = await cursor.getRows(100);
         await cursor.close();
 
-        // Mapeamos las 6 columnas de salida
         const data = rows.map(row => ({
             nombre_completo: row[0],
             valor_mercado: parseFloat(row[1]),
             clausula_original: parseFloat(row[2]),
             moneda_original: row[3],
             clausula_en_usd: parseFloat(row[4]),
-            estado_de_riesgo: row[5] // Aquí viene el mensaje de semáforo
+            estado_de_riesgo: row[5]
         }));
         
         return {
@@ -328,7 +303,7 @@ async function getRiesgoFuga() {
         };
 
     } catch (error) {
-        console.error(' [REPORTE 6] Error:', error.message);
+        console.error('[REPORTE 6] Error:', error.message);
         throw {
             status: 500,
             message: 'Error al ejecutar reporte Riesgo de Fuga',
@@ -339,15 +314,11 @@ async function getRiesgoFuga() {
     }
 }
 
-// ===================================================================
-// REPORTE 7: PROYECCIÓN PLANILLA (3 Parámetros de Salida)
-// ===================================================================
-
 async function getBajasDisponibilidad() {
     let connection;
     try {
         connection = await getConnection();
-        console.log(' [REPORTE 7] Conexión exitosa');
+        console.log('[REPORTE 7] Conexión exitosa');
 
         const result = await connection.execute(
             `BEGIN
@@ -359,7 +330,7 @@ async function getBajasDisponibilidad() {
             }
         );
 
-        console.log(' [REPORTE 7] Procedimiento ejecutado');
+        console.log('[REPORTE 7] Procedimiento ejecutado');
         
         const cursor = result.outBinds.cursor;
         const rows = await cursor.getRows(100);
@@ -382,7 +353,7 @@ async function getBajasDisponibilidad() {
         };
 
     } catch (error) {
-        console.error(' [REPORTE 7] Error:', error.message);
+        console.error('[REPORTE 7] Error:', error.message);
         throw {
             status: 500,
             message: 'Error al ejecutar reporte Bajas y Disponibilidad',
@@ -393,28 +364,23 @@ async function getBajasDisponibilidad() {
     }
 }
 
-// ===================================================================
-// REPORTE 8: CONTROL DE EXTRANJEROS (CURSOR)
-// ===================================================================
-
 async function getControlExtranjeros() {
     let connection;
     try {
         connection = await getConnection();
-        console.log(' [REPORTE 8] Conexión exitosa');
+        console.log('[REPORTE 8] Conexión exitosa');
 
         const result = await connection.execute(
-            // Llamamos al procedimiento con los dos parámetros de salida
             `BEGIN
               SP_REPORTE_CONTROL_EXTRANJEROS(:estado, :cursor);
             END;`,
             {
-                estado: { type: oracledb.STRING, dir: oracledb.BIND_OUT }, // Captura el mensaje del semáforo
-                cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT } // Captura el detalle de jugadores
+                estado: { type: oracledb.STRING, dir: oracledb.BIND_OUT },
+                cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT }
             }
         );
 
-        console.log(' [REPORTE 8] Procedimiento ejecutado');
+        console.log('[REPORTE 8] Procedimiento ejecutado');
         
         // 1. Obtener la data del cursor
         const cursor = result.outBinds.cursor;
@@ -440,7 +406,7 @@ async function getControlExtranjeros() {
         };
 
     } catch (error) {
-        console.error(' [REPORTE 8] Error:', error.message);
+        console.error('[REPORTE 8] Error:', error.message);
         throw {
             status: 500,
             message: 'Error al ejecutar reporte Control de Extranjeros',
@@ -451,15 +417,11 @@ async function getControlExtranjeros() {
     }
 }
 
-// ===================================================================
-// REPORTE 9: BALANCE CANTERA VS. FICHAJES (TACO)
-// ===================================================================
-
 async function getBalanceCantera() {
   let connection;
   try {
     connection = await getConnection();
-    console.log(' [REPORTE 9] Conexión exitosa');
+    console.log('[REPORTE 9] Conexión exitosa');
 
     const result = await connection.execute(
       `BEGIN
@@ -470,10 +432,13 @@ async function getBalanceCantera() {
       }
     );
     
-    console.log(' [REPORTE 9] Procedimiento ejecutado');
+    console.log('[REPORTE 9] Procedimiento ejecutado');
     const cursor = result.outBinds.cursor;
     const rows = await cursor.getRows(100);
     await cursor.close();
+    
+    console.log('[REPORTE 9] Filas obtenidas:', rows.length);
+    console.log('[REPORTE 9] Datos brutos:', rows);
 
     const data = rows.map(row => ({
       origen_jugador: row[0],
@@ -482,6 +447,8 @@ async function getBalanceCantera() {
       valor_mercado_promedio: parseFloat(row[3]),
       valor_mercado_total: parseFloat(row[4])
     }));
+    
+    console.log('[REPORTE 9] Datos procesados:', data);
 
     return {
       success: true,
@@ -491,7 +458,7 @@ async function getBalanceCantera() {
     };
 
   } catch (error) {
-    console.error(' [REPORTE 9] Error:', error.message);
+    console.error('[REPORTE 9] Error:', error.message);
     throw {
       status: 500,
       message: 'Error al ejecutar reporte Balance Cantera',
@@ -502,15 +469,11 @@ async function getBalanceCantera() {
   }
 }
 
-// ===================================================================
-// REPORTE 10: JUGADORES CEDIDOS - PRÉSTAMOS A DEVOLVER (TACO)
-// ===================================================================
-
 async function getJugadoresCedidos() {
   let connection;
   try {
     connection = await getConnection();
-    console.log(' [REPORTE 10] Conexión exitosa');
+    console.log('[REPORTE 10] Conexión exitosa');
 
     const result = await connection.execute(
       `BEGIN
@@ -521,7 +484,7 @@ async function getJugadoresCedidos() {
       }
     );
 
-    console.log(' [REPORTE 10] Procedimiento ejecutado');
+    console.log('[REPORTE 10] Procedimiento ejecutado');
     const cursor = result.outBinds.cursor;
     const rows = await cursor.getRows(100);
     await cursor.close();
@@ -549,7 +512,7 @@ async function getJugadoresCedidos() {
     };
 
   } catch (error) {
-    console.error(' [REPORTE 10] Error:', error.message);
+    console.error('[REPORTE 10] Error:', error.message);
     throw {
       status: 500,
       message: 'Error al ejecutar reporte Jugadores Cedidos',

@@ -1,15 +1,16 @@
 import React from 'react';
 import Modal from './Modal';
 import { InputConIcono, SelectConIcono } from './ui';
-import { mockPaises, mockPosiciones, mockClubes } from '../data/mockData';
+import { useData } from '../context/DataContext';
 import { 
-  DollarSign, Flag, ShieldCheck, Building, CalendarDays, UserCheck, Activity, Briefcase,
-  Globe, Users, FileText, TrendingUp, BadgeDollarSign, FileCheck
+  DollarSign, Flag, ShieldCheck, Building, CalendarDays, UserCheck
 } from 'lucide-react';
 
 export default function ModalFutbolista(
   { isVisible, onClose, mode, formData, handleChange, handleSubmit }
 ) {
+  const { catalogos } = useData();
+
   if (!isVisible) return null;
 
   return (
@@ -18,7 +19,7 @@ export default function ModalFutbolista(
       onClose={onClose} 
       title={mode === 'ADD' ? 'Agregar Futbolista' : 'Editar Futbolista'}
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto px-2">
         <div className="grid grid-cols-2 gap-4">
           <InputConIcono 
             icon={<UserCheck size={16} />}
@@ -39,6 +40,7 @@ export default function ModalFutbolista(
             required
           />
         </div>
+        
         <InputConIcono 
           icon={<CalendarDays size={16} />}
           type="date"
@@ -48,6 +50,7 @@ export default function ModalFutbolista(
           onChange={handleChange}
           required
         />
+        
         <div className="grid grid-cols-2 gap-4">
           <SelectConIcono
             icon={<Flag size={16} />}
@@ -57,7 +60,11 @@ export default function ModalFutbolista(
             required
           >
             <option value="">Seleccionar País</option>
-            {mockPaises.map(p => <option key={p.id_pais} value={p.id_pais}>{p.nombre_pais}</option>)}
+            {catalogos.paises.map(p => (
+              <option key={p.ID_PAIS} value={p.ID_PAIS}>
+                {p.NOMBRE_PAIS}
+              </option>
+            ))}
           </SelectConIcono>
           <SelectConIcono
             icon={<ShieldCheck size={16} />}
@@ -67,12 +74,17 @@ export default function ModalFutbolista(
             required
           >
             <option value="">Seleccionar Posición</option>
-            {mockPosiciones.map(p => <option key={p.id_posicion} value={p.id_posicion}>{p.nombre_posicion}</option>)}
+            {catalogos.posiciones.map(p => (
+              <option key={p.ID_POSICION} value={p.ID_POSICION}>
+                {p.NOMBRE_POSICION}
+              </option>
+            ))}
           </SelectConIcono>
         </div>
+
         <div className="grid grid-cols-2 gap-4">
           <SelectConIcono
-            icon={<Globe size={16} />}
+            icon={<Flag size={16} />}
             name="es_extranjero"
             value={formData.es_extranjero}
             onChange={handleChange}
@@ -83,7 +95,7 @@ export default function ModalFutbolista(
             <option value="N">No</option>
           </SelectConIcono>
           <SelectConIcono
-            icon={<Users size={16} />}
+            icon={<UserCheck size={16} />}
             name="es_canterano"
             value={formData.es_canterano}
             onChange={handleChange}
@@ -94,6 +106,7 @@ export default function ModalFutbolista(
             <option value="N">No</option>
           </SelectConIcono>
         </div>
+
         <InputConIcono 
           icon={<Building size={16} />}
           type="text"
@@ -102,8 +115,9 @@ export default function ModalFutbolista(
           value={formData.club_formacion}
           onChange={handleChange}
         />
+
         <SelectConIcono
-          icon={<Briefcase size={16} />}
+          icon={<UserCheck size={16} />}
           name="situacion_actual"
           value={formData.situacion_actual}
           onChange={handleChange}
@@ -115,14 +129,16 @@ export default function ModalFutbolista(
           <option value="Prestamo_Entrante">Préstamo Entrante</option>
           <option value="Baja">Baja</option>
         </SelectConIcono>
+
         <InputConIcono 
-          icon={<FileText size={16} />}
+          icon={<UserCheck size={16} />}
           type="text"
           name="detalle_baja"
           placeholder="Detalle de Baja (opcional)"
           value={formData.detalle_baja}
           onChange={handleChange}
         />
+
         <InputConIcono 
           icon={<CalendarDays size={16} />}
           type="date"
@@ -131,49 +147,41 @@ export default function ModalFutbolista(
           value={formData.fecha_retorno_estimada}
           onChange={handleChange}
         />
+
         <div className="grid grid-cols-2 gap-4">
           <InputConIcono 
-            icon={<TrendingUp size={16} />}
+            icon={<DollarSign size={16} />}
             type="number"
             name="valor_mercado"
             placeholder="Valor de Mercado (EUR)"
             value={formData.valor_mercado}
             onChange={handleChange}
             required
+            step="0.01"
           />
           <InputConIcono 
-            icon={<BadgeDollarSign size={16} />}
+            icon={<DollarSign size={16} />}
             type="number"
             name="costo_fichaje"
             placeholder="Costo de Fichaje (EUR)"
             value={formData.costo_fichaje}
             onChange={handleChange}
             required
+            step="0.01"
           />
         </div>
+
         <SelectConIcono
-          icon={<Activity size={16} />}
+          icon={<UserCheck size={16} />}
           name="estado_medico"
           value={formData.estado_medico}
           onChange={handleChange}
           required
         >
-          <option value="">Seleccionar Estado Médico</option>
+          <option value="">Estado Médico</option>
           <option value="A">Activo</option>
           <option value="L">Lesionado</option>
           <option value="S">Suspendido</option>
-        </SelectConIcono>
-        <SelectConIcono
-          icon={<FileCheck size={16} />}
-          name="estado_contrato"
-          value={formData.estado_contrato}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Seleccionar Estado Contrato</option>
-          <option value="A">Activo</option>
-          <option value="S">Suspendido</option>
-          <option value="R">Rescindido</option>
         </SelectConIcono>
 
         <div className="flex justify-end space-x-3 pt-4">

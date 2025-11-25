@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import { BotonAccion } from '../components/ui';
-import { getClubNombre, getPaisNombre, calcularEdad } from '../utils/helpers';
+import { calcularEdad } from '../utils/helpers';
 import { useData } from '../context/DataContext';
 
 // ¡Importamos los nuevos modales!
@@ -12,13 +12,14 @@ const FORM_DATA_INICIAL = {
   nombre: '',
   apellido: '',
   fecha_nacimiento: '',
-  rol: '',
+  id_rol: '',
   id_pais: '',
-  id_club: '',
+  salario_mensual: '',
+  fecha_vencimiento_contrato: ''
 };
 
 export default function GestionTecnicos() {
-  const { tecnicos, setTecnicos } = useData();
+  const { tecnicos, addTecnico, updateTecnico, deleteTecnico, loading } = useData();
 
   // Estado para el modal de Add/Edit
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -34,7 +35,16 @@ export default function GestionTecnicos() {
     setModalMode(mode);
     if (mode === 'EDIT' && tecnico) {
       setCurrentTecnico(tecnico);
-      setFormData({ ...tecnico });
+      // Mapear los datos de Oracle (mayúsculas) a formData (minúsculas)
+      setFormData({
+        nombre: tecnico.NOMBRES,
+        apellido: tecnico.APELLIDOS,
+        fecha_nacimiento: tecnico.FECHA_NACIMIENTO?.split('T')[0] || tecnico.FECHA_NACIMIENTO,
+        id_rol: tecnico.ID_ROL,
+        id_pais: tecnico.ID_PAIS,
+        salario_mensual: tecnico.SALARIO_MENSUAL || '',
+        fecha_vencimiento_contrato: tecnico.FECHA_VENCIMIENTO_CONTRATO?.split('T')[0] || ''
+      });
     } else {
       setCurrentTecnico(null);
       setFormData(FORM_DATA_INICIAL);
@@ -53,45 +63,57 @@ export default function GestionTecnicos() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (modalMode === 'ADD') {
-      const nuevoTecnico = {
-        id_tecnico: Date.now(),
-        ...formData,
-        id_pais: parseInt(formData.id_pais), 
-        id_club: parseInt(formData.id_club),    
+    try {
+      const tecnicoData = {
+        nombre: formData.nombre,
+        apellido: formData.apellido,
+        fecha_nacimiento: formData.fecha_nacimiento,
+        id_rol: parseInt(formData.id_rol),
+        id_pais: parseInt(formData.id_pais),
+        salario_mensual: parseFloat(formData.salario_mensual),
+        fecha_vencimiento_contrato: formData.fecha_vencimiento_contrato || null
       };
-      setTecnicos([...tecnicos, nuevoTecnico]);
-    } else if (modalMode === 'EDIT') {
-      setTecnicos(tecnicos.map(t => 
-        t.id_tecnico === currentTecnico.id_tecnico 
-        ? { 
-          ...t, 
-          ...formData,
-          id_pais: parseInt(formData.id_pais),  
-          id_club: parseInt(formData.id_club),          
-        } 
-        : t
-      ));
+
+      if (modalMode === 'ADD') {
+        await addTecnico(tecnicoData);
+      } else if (modalMode === 'EDIT') {
+        await updateTecnico(currentTecnico.ID_TECNICO, tecnicoData);
+      }
+      cerrarModalForm();
+    } catch (error) {
+      console.error('Error al guardar técnico:', error);
+      alert('Error al guardar el técnico');
     }
-    cerrarModalForm();
   };
 
-  // Lógica de eliminación actualizada
   const abrirModalConfirmar = (id_tecnico) => {
     setIdParaEliminar(id_tecnico);
     setIsConfirmModalOpen(true);
   };
+
+  if (loading) {
+    return (
+      <div className="p-6 flex justify-center items-center">
+        <div className="text-xl">Cargando...</div>
+      </div>
+    );
+  }
 
   const cerrarModalConfirmar = () => {
     setIdParaEliminar(null);
     setIsConfirmModalOpen(false);
   };
 
-  const handleEliminarConfirmado = () => {
-    setTecnicos(tecnicos.filter(t => t.id_tecnico !== idParaEliminar));
-    cerrarModalConfirmar();
+  const handleEliminarConfirmado = async () => {
+    try {
+      await deleteTecnico(idParaEliminar);
+      cerrarModalConfirmar();
+    } catch (error) {
+      console.error('Error al eliminar técnico:', error);
+      alert('Error al eliminar el técnico');
+    }
   };
 
   return (
@@ -122,12 +144,12 @@ export default function GestionTecnicos() {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {tecnicos.map(t => (
-              <tr key={t.id_tecnico}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{t.nombre} {t.apellido}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getPaisNombre(t.id_pais)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getClubNombre(t.id_club)}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{t.rol}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{calcularEdad(t.fecha_nacimiento)}</td>
+              <tr key={t.ID_TECNICO}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{t.NOMBRES} {t.APELLIDOS}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{t.NOMBRE_PAIS || 'N/A'}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">-</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{t.ROL || 'N/A'}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{calcularEdad(t.FECHA_NACIMIENTO)}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                   <BotonAccion 
                     onClick={() => abrirModalForm('EDIT', t)}
@@ -135,7 +157,7 @@ export default function GestionTecnicos() {
                     colorClass="hover:bg-yellow-100 text-yellow-600"
                   />
                   <BotonAccion 
-                    onClick={() => abrirModalConfirmar(t.id_tecnico)}
+                    onClick={() => abrirModalConfirmar(t.ID_TECNICO)}
                     icon={<Trash2 size={16} />}
                     colorClass="hover:bg-red-100 text-red-600"
                   />

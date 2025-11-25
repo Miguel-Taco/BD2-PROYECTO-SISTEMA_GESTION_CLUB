@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { FileText, Loader2 } from 'lucide-react';
 
-const BASE_URL = 'http://localhost:3001';
+const BASE_URL = 'http://localhost:3000';
 
-// Función para aplicar estilos al riesgo (solo para Reporte 6)
 const obtenerClaseRiesgo = (estado) => {
     if (!estado) return 'text-gray-600'; 
     if (estado.includes('PELIGRO INMINENTE')) {
@@ -16,7 +15,6 @@ const obtenerClaseRiesgo = (estado) => {
     return 'text-gray-600';
 };
 
-// Lista de los 10 reportes (Asumo que la Masa Salarial (R1) usará la ruta compleja /1/masa-salarial)
 const listaReportes = [
   { id: 1, nombre: 'Reporte de Masa Salarial Total', ruta: '/api/reportes/1/masa-salarial' },
   { id: 2, nombre: 'Reporte de Valor de Mercado del Plantel', ruta: '/api/reportes/2/valor-mercado' },
@@ -53,17 +51,15 @@ export default function Reportes() {
             }
 
             const data = await response.json();
-            setApiData(data); // 1. Guardamos el objeto completo
+            setApiData(data);
 
             let dataFinal = [];
             
-            // Lógica compleja para Masa Salarial (R1) - Devuelve data.detalle
             if (reporte.id === 1 && data.detalle) { 
                 dataFinal = [
                     ...data.detalle.jugadores,
                     ...data.detalle.tecnicos
                 ];
-            // Lógica simple para R6, R7(nuevo), R8, R9, R10 - Devuelve data.data
             } else if (data.data) {
                 dataFinal = data.data;
             }
@@ -79,7 +75,12 @@ export default function Reportes() {
         }
     };
 
-    // Lógica para el Resumen del R6
+    const handleRefrescarReporte = () => {
+        if (reporteActivo) {
+            handleEjecutarReporte(reporteActivo);
+        }
+    };
+
     const resumenRiesgo = React.useMemo(() => {
         if (reporteActivo?.id !== 6 || !datosReporte.length) return null;
         const totalJugadores = datosReporte.length;
@@ -91,10 +92,23 @@ export default function Reportes() {
 
     return (
         <div className="p-6">
-            <h1 className="text-3xl font-bold mb-6">Reportes Estratégicos del Club</h1>
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-3xl font-bold">Reportes Estratégicos del Club</h1>
+                {reporteActivo && (
+                    <button
+                        onClick={handleRefrescarReporte}
+                        disabled={cargando}
+                        className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                        </svg>
+                        Refrescar Reporte
+                    </button>
+                )}
+            </div>
             
             <div className="flex gap-6">
-                {/* ... (Panel de selección) ... */}
                 <div className="w-80 bg-white rounded-lg shadow-md p-4">
                     <h3 className="text-lg font-semibold mb-4 flex items-center">
                         <FileText size={20} className="mr-2 text-blue-600" />
@@ -105,7 +119,7 @@ export default function Reportes() {
                             <li key={r.id}>
                                 <button 
                                     onClick={() => handleEjecutarReporte(r)}
-                                    disabled={cargando || !r.ruta} // Deshabilita si no tiene ruta
+                                    disabled={cargando || !r.ruta}
                                     className={`w-full text-left px-4 py-3 rounded-lg transition-colors text-sm
                                         ${reporteActivo?.id === r.id 
                                             ? 'bg-blue-600 text-white' 
@@ -121,9 +135,7 @@ export default function Reportes() {
                     </ul>
                 </div>
 
-                {/* Área de visualización del reporte */}
                 <div className="flex-1 bg-white rounded-lg shadow-md p-6">
-                    {/* ... (Estados cargando y no activo) ... */}
                     {!reporteActivo && (
                         <div className="flex flex-col items-center justify-center h-64 text-gray-400">
                             <FileText size={64} className="mb-4" />
@@ -142,22 +154,19 @@ export default function Reportes() {
                         <div>
                             <h2 className="text-xl font-semibold mb-4">{reporteActivo.nombre}</h2>
                             
-                            {/* R1: MASA SALARIAL TOTAL (Antiguo R7) */}
                             {reporteActivo.id === 1 && apiData?.gran_total_soles && (
                                 <div className="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-800 text-xl font-bold">
                                     GRAN TOTAL MENSUAL: S/. {apiData.gran_total_soles.toLocaleString('es-ES')}
                                 </div>
                             )}
 
-                            {/* R7: BAJAS Y DISPONIBILIDAD */}
                             {reporteActivo.id === 7 && apiData?.total_bajas > 0 && (
                                 <div className="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-800">
-                                    <p className="font-bold text-lg">⚠️ ALERTA DE BAJAS:</p>
+                                    <p className="font-bold text-lg">ALERTA DE BAJAS:</p>
                                     <p>Hay un total de {apiData.total_bajas} jugadores no disponibles (lesión/suspensión).</p> 
                                 </div>
                             )}
                             
-                            {/* R8: CONTROL DE EXTRANJEROS */}
                             {reporteActivo.id === 8 && apiData && (
                                 <div className="mb-4 p-3 bg-blue-100 border-l-4 border-blue-500 text-blue-800">
                                     <p className="font-bold">Estado del Cupo:</p>
@@ -165,7 +174,6 @@ export default function Reportes() {
                                 </div>
                             )}
 
-                            {/* R6: RIESGO DE FUGA (Resumen Ejecutivo) */}
                             {reporteActivo.id === 6 && resumenRiesgo && (
                                 <div className="grid grid-cols-3 gap-4 mb-6">
                                     <div className="p-4 bg-gray-50 rounded-lg shadow">
@@ -183,7 +191,6 @@ export default function Reportes() {
                                 </div>
                             )}
                             
-                            {/* TABLA DE DETALLE (cuerpo principal) */}
                             <div className="overflow-x-auto">
                                 <table className="min-w-full divide-y divide-gray-200">
                                     <thead className="bg-gray-50">
@@ -193,7 +200,7 @@ export default function Reportes() {
                                                     key={key}
                                                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                                 >
-                                                    {key.replace(/_/g, ' ')} {/* Formato de encabezados */}
+                                                    {key.replace(/_/g, ' ')}
                                                 </th>
                                             ))}
                                         </tr>
@@ -202,7 +209,6 @@ export default function Reportes() {
                                         {datosReporte.map((fila, index) => (
                                             <tr key={index} className="hover:bg-gray-50">
                                                 {Object.values(fila).map((valor, i) => {
-                                                    // Buscamos la clave para aplicar el estilo condicional (R6)
                                                     const keys = Object.keys(datosReporte[0]);
                                                     const esColumnaRiesgo = reporteActivo.id === 6 && keys[i] === 'estado_de_riesgo';
 
@@ -213,7 +219,6 @@ export default function Reportes() {
                                                                     {valor}
                                                                 </span>
                                                             ) : (
-                                                                // Lógica de formato de números
                                                                 typeof valor === 'number' && valor > 1000 
                                                                     ? valor.toLocaleString('es-ES') 
                                                                     : valor

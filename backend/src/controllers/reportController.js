@@ -1,6 +1,5 @@
 const reportService = require('../services/reportService');
 
-// Controlador para el Reporte 1 (Masa Salarial Total)
 const getMasaSalarialTotal = async (req, res, next) => {
     try {
         const data = await reportService.getMasaSalarialTotal();
@@ -10,7 +9,6 @@ const getMasaSalarialTotal = async (req, res, next) => {
     }
 };
 
-// Controlador para el Reporte 2 (Valor de Mercado del Plantel)
 const getValorMercadoPlantel = async (req, res, next) => {
     try {
         const data = await reportService.getValorMercadoPlantel();
@@ -20,7 +18,6 @@ const getValorMercadoPlantel = async (req, res, next) => {
     }
 };
 
-// Controlador para el Reporte 3 (ROI de Fichajes)
 const getRoiFichajes = async (req, res, next) => {
   try {
     const data = await reportService.getRoiFichajes();
@@ -30,7 +27,6 @@ const getRoiFichajes = async (req, res, next) => {
   }
 };
 
-// Controlador para el Reporte 4 (Distribución de Edad)
 const getDistribucionEdad = async (req, res, next) => {
     try {
         const data = await reportService.getDistribucionEdad();
@@ -40,7 +36,6 @@ const getDistribucionEdad = async (req, res, next) => {
     }
 };
 
-// Controlador para el Reporte 5 (Vencimientos de Contrato)
 const getVencimientosContrato = async (req, res, next) => {
     try {
         const data = await reportService.getVencimientosContrato();
@@ -50,27 +45,24 @@ const getVencimientosContrato = async (req, res, next) => {
     }
 };
 
-// Controlador para el Reporte 6
 const getRiesgoFuga = async (req, res, next) => {
     try {
         const data = await reportService.getRiesgoFuga();
         res.status(200).json(data);
     } catch (error) {
-        next(error); // Pasa el error al middleware errorHandler
+        next(error);
     }
 };
 
-// Controlador para el Reporte 7
 const getBajasDisponibilidad = async (req, res, next) => {
     try {
-        // Llama a la nueva función del servicio
         const data = await reportService.getBajasDisponibilidad(); 
         res.status(200).json(data);
     } catch (error) {
         next(error);
     }
 };
-// Controlador para el Reporte 8
+
 const getControlExtranjeros = async (req, res, next) => {
     try {
         const data = await reportService.getControlExtranjeros();
@@ -80,7 +72,6 @@ const getControlExtranjeros = async (req, res, next) => {
     }
 };
 
-// Reporte 9: Balance Cantera vs. Fichajes
 async function getBalanceCantera(req, res, next) {
   try {
     const resultado = await reportService.getBalanceCantera();
@@ -90,7 +81,6 @@ async function getBalanceCantera(req, res, next) {
   }
 }
 
-// Reporte 10: Jugadores Cedidos
 async function getJugadoresCedidos(req, res, next) {
   try {
     const resultado = await reportService.getJugadoresCedidos();
