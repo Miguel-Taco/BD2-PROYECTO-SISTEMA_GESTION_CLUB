@@ -175,6 +175,117 @@ async function getRoiFichajes() {
 }
 
 // ===================================================================
+// REPORTE 4: DISTRIBUCIÓN DE EDAD
+// ===================================================================
+
+async function getDistribucionEdad() {
+    let connection;
+    try {
+        connection = await getConnection();
+        console.log(' [REPORTE 4] Conexión exitosa');
+
+        const result = await connection.execute(
+            `BEGIN
+              SP_REPORTE_DISTRIBUCION_EDAD(:cursor);
+            END;`,
+            {
+                cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT }
+            }
+        );
+
+        console.log(' [REPORTE 4] Procedimiento ejecutado');
+        
+        const cursor = result.outBinds.cursor;
+        const rows = await cursor.getRows(100);
+        await cursor.close();
+
+        const data = rows.map(row => ({
+            rango_edad: row[0],
+            cantidad_jugadores: row[1],
+            edad_promedio: parseFloat(row[2]),
+            porcentaje_plantilla: parseFloat(row[3]),
+            valor_mercado_promedio: parseFloat(row[4])
+        }));
+        
+        return {
+            success: true,
+            reporte: 'Distribución de Edad',
+            total_jugadores: data.reduce((acc, curr) => acc + curr.cantidad_jugadores, 0),
+            data: data
+        };
+
+    } catch (error) {
+        console.error(' [REPORTE 4] Error:', error.message);
+        throw {
+            status: 500,
+            message: 'Error al ejecutar reporte Distribución de Edad',
+            details: error.message
+        };
+    } finally {
+        if (connection) await connection.close();
+    }
+}
+
+// ===================================================================
+// REPORTE 5: PRÓXIMOS VENCIMIENTOS DE CONTRATO
+// ===================================================================
+
+async function getVencimientosContrato() {
+    let connection;
+    try {
+        connection = await getConnection();
+        console.log(' [REPORTE 5] Conexión exitosa');
+
+        const result = await connection.execute(
+            `BEGIN
+              SP_REPORTE_VENCIMIENTOS_CONTRATO(:cursor);
+            END;`,
+            {
+                cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT }
+            }
+        );
+
+        console.log(' [REPORTE 5] Procedimiento ejecutado');
+        
+        const cursor = result.outBinds.cursor;
+        const rows = await cursor.getRows(100);
+        await cursor.close();
+
+        const data = rows.map(row => ({
+            id_futbolista: row[0],
+            nombre_completo: row[1],
+            posicion: row[2],
+            pais: row[3],
+            fecha_inicio_contrato: row[4] ? row[4].toISOString().split('T')[0] : null,
+            fecha_fin_contrato: row[5] ? row[5].toISOString().split('T')[0] : null,
+            dias_restantes: row[6],
+            estado_contrato: row[7],
+            salario_mensual: parseFloat(row[8]),
+            moneda: row[9],
+            valor_mercado: parseFloat(row[10]),
+            tipo_contrato: row[11]
+        }));
+        
+        return {
+            success: true,
+            reporte: 'Próximos Vencimientos de Contrato',
+            cantidad_contratos: data.length,
+            data: data
+        };
+
+    } catch (error) {
+        console.error(' [REPORTE 5] Error:', error.message);
+        throw {
+            status: 500,
+            message: 'Error al ejecutar reporte Vencimientos de Contrato',
+            details: error.message
+        };
+    } finally {
+        if (connection) await connection.close();
+    }
+}
+
+// ===================================================================
 // REPORTE 6: RIESGO DE FUGA (CURSOR)
 // ===================================================================
 
@@ -468,12 +579,14 @@ async function getJugadoresCedidos() {
 }
 
 module.exports = {
+  getMasaSalarialTotal, 
+  getValorMercadoPlantel,
+  getRoiFichajes,
+  getDistribucionEdad,
+  getVencimientosContrato,
   getRiesgoFuga,
   getProyeccionPlanilla,
   getControlExtranjeros,
   getBalanceCantera,
-  getJugadoresCedidos,
-  getMasaSalarialTotal, 
-  getValorMercadoPlantel,
-  getRoiFichajes
+  getJugadoresCedidos
 };

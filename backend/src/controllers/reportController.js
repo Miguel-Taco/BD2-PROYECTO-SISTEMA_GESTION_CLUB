@@ -30,6 +30,26 @@ const getRoiFichajes = async (req, res, next) => {
   }
 };
 
+// Controlador para el Reporte 4 (Distribución de Edad)
+const getDistribucionEdad = async (req, res, next) => {
+    try {
+        const data = await reportService.getDistribucionEdad();
+        res.status(200).json(data);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Controlador para el Reporte 5 (Vencimientos de Contrato)
+const getVencimientosContrato = async (req, res, next) => {
+    try {
+        const data = await reportService.getVencimientosContrato();
+        res.status(200).json(data);
+    } catch (error) {
+        next(error);
+    }
+};
+
 // Controlador para el Reporte 6
 const getRiesgoFuga = async (req, res, next) => {
     try {
@@ -81,12 +101,14 @@ async function getJugadoresCedidos(req, res, next) {
 }
 
 module.exports = {
+  getMasaSalarialTotal,
+  getValorMercadoPlantel,
+  getRoiFichajes,
+  getDistribucionEdad,
+  getVencimientosContrato,
   getRiesgoFuga,
   getProyeccionPlanilla,
   getControlExtranjeros,
   getBalanceCantera,
-  getJugadoresCedidos,
-  getMasaSalarialTotal,
-  getValorMercadoPlantel,
-  getRoiFichajes
+  getJugadoresCedidos
 };
