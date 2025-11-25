@@ -5,9 +5,9 @@ const BASE_URL = 'http://localhost:3001';
 
 // Lista de los 10 reportes
 const listaReportes = [
-  { id: 1, nombre: 'Reporte de Plantel Completo' },
-  { id: 2, nombre: 'Reporte de Cuerpo Técnico Completo' },
-  { id: 3, nombre: 'Reporte de Futbolistas por Posición' },
+  { id: 1, nombre: 'Reporte de Masa Salarial Total', ruta: '/api/reportes/1/masa-salarial' },
+  { id: 2, nombre: 'Reporte de Valor de Mercado del Plantel', ruta: '/api/reportes/2/valor-mercado' },
+  { id: 3, nombre: 'Reporte de ROI de Fichajes', ruta: '/api/reportes/3/roi-fichajes' },
   { id: 4, nombre: 'Reporte de Próximas Vencimientos de Contrato' },
   { id: 5, nombre: 'Reporte de Promedio de Edad del Plantel' },
   { id: 6, nombre: 'Reporte de Riesgo de Fuga', ruta: '/api/reportes/6/riesgo-fuga' },

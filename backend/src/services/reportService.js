@@ -2,6 +2,179 @@ const oracledb = require('oracledb');
 const { getConnection } = require('../config/database');
 
 // ===================================================================
+// REPORTE 1: MASA SALARIAL TOTAL
+// ===================================================================
+
+async function getMasaSalarialTotal() {
+    let connection;
+    try {
+        connection = await getConnection();
+        console.log(' [REPORTE 1] Conexión exitosa');
+
+        const result = await connection.execute(
+            `BEGIN
+              SP_REPORTE_MASA_SALARIAL(:jugadores_cursor, :tecnicos_cursor, :total_salarios);
+            END;`,
+            {
+                jugadores_cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT },
+                tecnicos_cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT },
+                total_salarios: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT }
+            }
+        );
+        
+        console.log(' [REPORTE 1] Procedimiento ejecutado');
+        
+        const jugCursor = result.outBinds.jugadores_cursor;
+        const jugRows = await jugCursor.getRows(100);
+        await jugCursor.close();
+
+        const detalleJugadores = jugRows.map(row => ({
+            nombre_completo: row[0],
+            salario_original: parseFloat(row[1]),
+            moneda_original: row[2],
+            salario_en_soles: parseFloat(row[3])
+        }));
+
+        const tecCursor = result.outBinds.tecnicos_cursor;
+        const tecRows = await tecCursor.getRows(100);
+        await tecCursor.close();
+
+        const detalleTecnicos = tecRows.map(row => ({
+            nombre_completo: row[0],
+            salario_original: parseFloat(row[1]),
+            moneda_original: row[2],
+            salario_en_soles: parseFloat(row[3])
+        }));
+
+        return {
+            success: true,
+            reporte: 'Masa Salarial Total',
+            gran_total_soles: parseFloat(result.outBinds.total_salarios),
+            detalle: {
+                jugadores: detalleJugadores,
+                tecnicos: detalleTecnicos,
+                sub_total_jugadores: detalleJugadores.reduce((acc, curr) => acc + curr.salario_en_soles, 0),
+                sub_total_tecnicos: detalleTecnicos.reduce((acc, curr) => acc + curr.salario_en_soles, 0),
+            }
+        };
+
+    } catch (error) {
+        console.error(' [REPORTE 1] Error:', error.message);
+        throw {
+            status: 500,
+            message: 'Error al ejecutar reporte Masa Salarial Total',
+            details: error.message
+        };
+    } finally {
+        if (connection) await connection.close();
+    }
+}
+
+// ===================================================================
+// REPORTE 2: VALOR DE MERCADO DEL PLANTEL
+// ===================================================================
+
+async function getValorMercadoPlantel() {
+    let connection;
+    try {
+        connection = await getConnection();
+        console.log(' [REPORTE 2] Conexión exitosa');
+
+        const result = await connection.execute(
+            `BEGIN
+              SP_REPORTE_VALOR_MERCADO(:total_mercado, :cursor);
+            END;`,
+            {
+                total_mercado: { type: oracledb.NUMBER, dir: oracledb.BIND_OUT },
+                cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT }
+            }
+        );
+        
+        console.log(' [REPORTE 2] Procedimiento ejecutado');
+        
+        const cursor = result.outBinds.cursor;
+        const rows = await cursor.getRows(100);
+        await cursor.close();
+
+        const data = rows.map(row => ({
+            nombre_completo: row[0],
+            posicion: row[1],
+            pais_origen: row[2],
+            valor_mercado: parseFloat(row[3])
+        }));
+
+        return {
+            success: true,
+            reporte: 'Valor de Mercado del Plantel',
+            gran_total_usd: parseFloat(result.outBinds.total_mercado),
+            cantidad_registros: data.length,
+            data: data
+        };
+
+    } catch (error) {
+        console.error(' [REPORTE 2] Error:', error.message);
+        throw {
+            status: 500,
+            message: 'Error al ejecutar reporte Valor de Mercado del Plantel',
+            details: error.message
+        };
+    } finally {
+        if (connection) await connection.close();
+    }
+}
+
+// ===================================================================
+// REPORTE 3: ROI DE FICHAJES
+// ===================================================================
+
+async function getRoiFichajes() {
+  let connection;
+  try {
+    connection = await getConnection();
+    console.log(' [REPORTE 3] Conexión exitosa');
+
+    const result = await connection.execute(
+      `BEGIN
+        SP_REPORTE_ROI_FICHAJES(:cursor);
+      END;`,
+      {
+        cursor: { type: oracledb.CURSOR, dir: oracledb.BIND_OUT }
+      }
+    );
+
+    console.log(' [REPORTE 3] Procedimiento ejecutado');
+    const cursor = result.outBinds.cursor;
+    const rows = await cursor.getRows(100);
+    await cursor.close();
+
+    const data = rows.map(row => ({
+      nombre_completo: row[0],
+      valor_actual_usd: parseFloat(row[1]),
+      costo_inversion_usd: parseFloat(row[2]),
+      porcentaje_roi: parseFloat(row[3]),
+      estado_inversion: row[4]
+    }));
+
+    return {
+      success: true,
+      reporte: 'ROI de Fichajes',
+      cantidad_registros: data.length,
+      data: data
+    };
+
+  } catch (error) {
+    console.error(' [REPORTE 3] Error:', error.message);
+    throw {
+      status: 500,
+      message: 'Error al ejecutar reporte ROI de Fichajes',
+      details: error.message
+    };
+  } finally {
+    if (connection) await connection.close();
+  }
+}
+
+// ===================================================================
 // REPORTE 6: RIESGO DE FUGA (CURSOR)
 // ===================================================================
 
@@ -299,5 +472,8 @@ module.exports = {
   getProyeccionPlanilla,
   getControlExtranjeros,
   getBalanceCantera,
-  getJugadoresCedidos
+  getJugadoresCedidos,
+  getMasaSalarialTotal, 
+  getValorMercadoPlantel,
+  getRoiFichajes
 };

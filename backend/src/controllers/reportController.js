@@ -1,5 +1,35 @@
 const reportService = require('../services/reportService');
 
+// Controlador para el Reporte 1 (Masa Salarial Total)
+const getMasaSalarialTotal = async (req, res, next) => {
+    try {
+        const data = await reportService.getMasaSalarialTotal();
+        res.status(200).json(data);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Controlador para el Reporte 2 (Valor de Mercado del Plantel)
+const getValorMercadoPlantel = async (req, res, next) => {
+    try {
+        const data = await reportService.getValorMercadoPlantel();
+        res.status(200).json(data);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Controlador para el Reporte 3 (ROI de Fichajes)
+const getRoiFichajes = async (req, res, next) => {
+  try {
+    const data = await reportService.getRoiFichajes();
+    res.status(200).json(data);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Controlador para el Reporte 6
 const getRiesgoFuga = async (req, res, next) => {
     try {
@@ -55,5 +85,8 @@ module.exports = {
   getProyeccionPlanilla,
   getControlExtranjeros,
   getBalanceCantera,
-  getJugadoresCedidos
+  getJugadoresCedidos,
+  getMasaSalarialTotal,
+  getValorMercadoPlantel,
+  getRoiFichajes
 };
